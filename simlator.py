@@ -23,6 +23,7 @@ input_file = 'input.txt'
 
 class Process:
     last_scheduled_time = 0
+    completedTime = 0
     
     def __init__(self, id, arrive_time, burst_time): 
         self.id = id
@@ -80,55 +81,55 @@ def RR_scheduling(process_list, time_quantum ):
     waiting_time = 0
 
     queue = Queue()
-    processIndex = 0
-    # while index < len(process_list) || queue.size() > 0:
-    #     i = 0
-    #     while (i<4) {
-    #         while (true):
-    #         if (index >= len(process_list)):
-    #             break
-            
-    #         item = process_list[index]
-            
-    #         if (current_time >= item.arrive_time):
-    #             queue.enqueue(item)
-    #             index ++
-    #         else:
-    #             break
-
-    #     } 
-
+    index = 0
         
-    while (processIndex < len(process_list) || !queue.isEmpty):
+    while ((index < len(process_list)) or (not queue.isEmpty())):
         #our round starts
         
         #first of all, let us try to refresh the list
-        while (true): 
+        while (True): 
             # if we have already processed all the items in the list
-            if (processIndex >= len(process_list)):
+            if (index >= len(process_list)):
                 break
 
             item = process_list[index]
 
             # see if we can add the item into the queue, depends on its arrival time
-            if (current_time >= item.arrive_time):
+            if (current_time + 4 >= item.arrive_time):
                 queue.enqueue(item)
-                index ++
+                index = index + 1
             else:
                 break    
-            
+        
+
         # alright, now we have done the preparation, to get the babies into the queue.
         # it is time to process them!
 
         #first of all, let us check if queue is empty or not, if it is empty already, then we just have to wait for another round and add them
-        if (!queue.isEmpty):
+        if (not queue.isEmpty()):
             itemToProcess = queue.dequeue()
+
+            schedule.append((current_time, itemToProcess.id))
+            # see if we can finish it right away
+            if (itemToProcess.burst_time) <= 4:
+                itemToProcess.completedTime = current_time + itemToProcess.burst_time
+            else:
+                itemToProcess.burst_time -= 4
+                #put it back
+                queue.enqueue(itemToProcess)
+
 
 
         # woohooo, go to next round
         current_time += 4
 
-    return (["to be completed, scheduling process_list on round robin policy with time_quantum"], 0.0)
+    for process in process_list:
+        waiting_time += process.completedTime - item.arrive_time
+
+    avg_waiting_time = waiting_time/float(len(process_list))
+
+    print(schedule)
+    return schedule, avg_waiting_time
 
 def SRTF_scheduling(process_list):
     return (["to be completed, scheduling process_list on SRTF, using process.burst_time to calculate the remaining time of the current process "], 0.0)
